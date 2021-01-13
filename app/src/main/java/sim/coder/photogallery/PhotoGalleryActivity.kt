@@ -1,5 +1,7 @@
 package sim.coder.photogallery
 
+import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import sim.coder.photogallery.fragment.PhotoGalleryFragment
@@ -17,7 +19,12 @@ class PhotoGalleryActivity : AppCompatActivity() {
                     .commit()
         }
 
-
-
     }
+
+    companion object {
+        fun newIntent(context: Context): Intent {
+            return Intent(context, PhotoGalleryActivity::class.java)
+        }
+    }
+
 }
