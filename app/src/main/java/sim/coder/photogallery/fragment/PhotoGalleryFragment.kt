@@ -6,10 +6,9 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
+import android.widget.SearchView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -34,6 +33,7 @@ class PhotoGalleryFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        setHasOptionsMenu(true)
         retainInstance = true
 
         photoGalleryViewModel =
@@ -119,6 +119,40 @@ class PhotoGalleryFragment : Fragment() {
             ) ?: ColorDrawable()
             holder.bindDrawable(placeholder)
             thumbnailDownloader.queueThumbnail(holder, galleryItem.url)
+        }
+    }
+
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu,menu)
+        val searchItem : MenuItem = menu.findItem(R.id.menu_item_search)
+        val searchView = searchItem.actionView as SearchView
+        searchView.apply {
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return false
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    photoGalleryViewModel.fetchPhotos(newText!!)
+                    return true
+                }
+
+            })
+            searchView.setOnClickListener {
+                searchView.setQuery(photoGalleryViewModel.searchTerm,false)
+            }
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId){
+            R.id.menu_item_clear -> {
+                photoGalleryViewModel.fetchPhotos("")
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
