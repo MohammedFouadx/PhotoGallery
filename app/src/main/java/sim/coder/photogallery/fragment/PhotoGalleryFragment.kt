@@ -1,5 +1,6 @@
 package sim.coder.photogallery.fragment
 
+import android.content.Intent
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
@@ -9,26 +10,22 @@ import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.SearchView
-import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleObserver
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.*
-import sim.coder.photogallery.PollWorker
-import sim.coder.photogallery.QueryPreferences
+import sim.coder.photogallery.*
 import sim.coder.photogallery.R
-import sim.coder.photogallery.ThumbnailDownloader
 import sim.coder.photogallery.model.GalleryItem
 import sim.coder.photogallery.model.PhotoGalleryViewModel
 import java.util.concurrent.TimeUnit
 
 private const val TAG = "PhotoGalleryFragment"
 private const val POLL_WORK = "POLL_WORK"
-class PhotoGalleryFragment : Fragment() {
+class PhotoGalleryFragment : VisibleFragment() {
 
     private lateinit var photoGalleryViewModel: PhotoGalleryViewModel
     private lateinit var photoRecyclerView: RecyclerView
@@ -70,7 +67,7 @@ class PhotoGalleryFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_photo_gallery, container, false)
 
         photoRecyclerView = view.findViewById(R.id.fragment_recycler_view)
-        photoRecyclerView.layoutManager = GridLayoutManager(context, 3)
+        photoRecyclerView.layoutManager = GridLayoutManager(context, 2)
 
         return view
     }
@@ -100,10 +97,30 @@ class PhotoGalleryFragment : Fragment() {
         )
     }
 
-    private class PhotoHolder(private val itemImageView: ImageView) : RecyclerView.ViewHolder(itemImageView) {
+
+    private inner class PhotoHolder(private val itemImageView: ImageView) : RecyclerView.ViewHolder(itemImageView) , View.OnClickListener {
+
+
+        private lateinit var galleryItem: GalleryItem
+        init {
+            itemImageView.setOnClickListener(this)
+        }
 
         val bindDrawable: (Drawable) -> Unit = itemImageView::setImageDrawable
+
+        fun bindGalleryItem(item: GalleryItem) {
+            galleryItem = item
+        }
+
+        override fun onClick(view: View) {
+
+            val intent = PhotoPageActivity.newIntent(requireContext(),galleryItem.pageUri)
+            startActivity(intent)
+        }
+
+
     }
+
 
     private inner class PhotoAdapter(private val galleryItems: List<GalleryItem>) :
         RecyclerView.Adapter<PhotoHolder>() {
@@ -129,9 +146,13 @@ class PhotoGalleryFragment : Fragment() {
                 R.drawable.ic_launcher_background
             ) ?: ColorDrawable()
             holder.bindDrawable(placeholder)
+            holder.bindGalleryItem(galleryItem)
             thumbnailDownloader.queueThumbnail(holder, galleryItem.url)
         }
     }
+
+
+
 
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

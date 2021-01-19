@@ -2,8 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="sim.coder.photogallery">
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <permission
+        android:name="sim.coder.photogallery.PRIVATE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="sim.coder.photogallery.PRIVATE" />
+
     <application
         android:name=".PhotoGalleryApplication"
         android:allowBackup="true"
@@ -12,6 +18,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PhotoGallery">
+        <activity android:name=".PhotoPageActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+
+            ></activity>
         <activity android:name=".PhotoGalleryActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,6 +29,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver
+            android:name=".NotificationReceiver"
+            android:exported="false"
+            android:permission="sim.coder.photogallery.PRIVATE">
+            <intent-filter android:priority="-999">
+                <action android:name="sim.coder.photogallery.SHOW_NOTIFICATION" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
